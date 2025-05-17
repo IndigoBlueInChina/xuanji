@@ -25,6 +25,78 @@ LLM_MODEL = os.getenv("LLM_SERVICE_MODEL", "qwen-plus")
 # 六十四卦列表
 HEXAGRAMS = list(HEXAGRAM_CODES.keys())
 
+# 生成卦图的HTML代码
+def generate_hexagram_html(hexagram_code, changing_lines=None):
+    """生成卦图的HTML代码
+    
+    Args:
+        hexagram_code: 卦象编码，如"111010"
+        changing_lines: 动爻列表，从1开始，如[1, 3, 5]
+    
+    Returns:
+        卦图的HTML代码
+    """
+    if not hexagram_code:
+        return ""
+    
+    if changing_lines is None:
+        changing_lines = []
+    
+    html = """
+    <style>
+    .hexagram {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px 0;
+    }
+    .line {
+        width: 100px;
+        height: 10px;
+        margin: 5px 0;
+        display: flex;
+    }
+    .yang {
+        background-color: black;
+        width: 100%;
+    }
+    .yin {
+        display: flex;
+        width: 100%;
+    }
+    .yin-left, .yin-right {
+        background-color: black;
+        width: 45%;
+    }
+    .yin-middle {
+        width: 10%;
+    }
+    .changing {
+        background-color: red;
+    }
+    </style>
+    <div class="hexagram">
+    """
+    
+    for i in range(6):
+        line_num = 6 - i  # 从下往上数，初爻为1
+        is_changing = line_num in changing_lines
+        line_type = hexagram_code[i]
+        
+        if line_type == "1":  # 阳爻
+            if is_changing:
+                html += f'<div class="line"><div class="yang changing"></div></div>'
+            else:
+                html += f'<div class="line"><div class="yang"></div></div>'
+        else:  # 阴爻
+            if is_changing:
+                html += f'<div class="line"><div class="yin"><div class="yin-left changing"></div><div class="yin-middle"></div><div class="yin-right changing"></div></div></div>'
+            else:
+                html += f'<div class="line"><div class="yin"><div class="yin-left"></div><div class="yin-middle"></div><div class="yin-right"></div></div></div>'
+    
+    html += "</div>"
+    return html
+
 def get_interpretation(question, background, external_signs, hexagram, changing_lines):
     """调用OpenAI API获取卦象解读"""
     prompt_parts = [f"作为一位精通邵康节一撮金的周易专家，请解读以下情况：\n\n问题：{question}"]
@@ -126,7 +198,7 @@ def create_markdown(content, filename="解卦报告.md"):
         f.write(content)
     return filename
 
-def create_pdf(content, filename="解卦报告.pdf"):
+def create_pdf(content, filename="解卦报告.pdf", hexagram_code=None, changing_line_numbers=None):
     """创建HTML文件，用户可以通过浏览器打印为PDF"""
     try:
         # 创建HTML文件而不是PDF
@@ -135,6 +207,51 @@ def create_pdf(content, filename="解卦报告.pdf"):
         # 将Markdown内容转换为HTML
         from markdown import markdown
         html_content = markdown(content)
+        
+        # 生成卦图HTML
+        hexagram_html = ""
+        if hexagram_code:
+            # 获取卦象名称
+            hexagram_name = get_hexagram_name(hexagram_code)
+            
+            # 生成本卦图
+            hexagram_html += f"""
+            <div class="hexagram-section">
+                <h3>本卦：{hexagram_name}</h3>
+                {generate_hexagram_html(hexagram_code, changing_line_numbers)}
+            </div>
+            """
+            
+            # 如果有动爻，生成变卦图
+            if changing_line_numbers:
+                changed_code = calculate_changed_hexagram(hexagram_code, changing_line_numbers)
+                changed_hexagram = get_hexagram_name(changed_code)
+                hexagram_html += f"""
+                <div class="hexagram-section">
+                    <h3>变卦：{changed_hexagram}</h3>
+                    {generate_hexagram_html(changed_code)}
+                </div>
+                """
+            
+            # 生成交互卦图
+            mutual_code = calculate_mutual_hexagram(hexagram_code)
+            mutual_hexagram = get_hexagram_name(mutual_code)
+            hexagram_html += f"""
+            <div class="hexagram-section">
+                <h3>交互卦：{mutual_hexagram}</h3>
+                {generate_hexagram_html(mutual_code)}
+            </div>
+            """
+            
+            # 生成综卦图
+            inverse_code = calculate_inverse_hexagram(hexagram_code)
+            inverse_hexagram = get_hexagram_name(inverse_code)
+            hexagram_html += f"""
+            <div class="hexagram-section">
+                <h3>综卦：{inverse_hexagram}</h3>
+                {generate_hexagram_html(inverse_code)}
+            </div>
+            """
         
         # 创建完整的HTML文档
         full_html = f"""
@@ -164,6 +281,11 @@ def create_pdf(content, filename="解卦报告.pdf"):
                     margin-top: 20px;
                     border-left: 4px solid #D2B48C;
                     padding-left: 10px;
+                }}
+                h3 {{
+                    font-size: 16px;
+                    color: #A0522D;
+                    margin-top: 15px;
                 }}
                 p {{
                     text-indent: 2em;
@@ -206,11 +328,59 @@ def create_pdf(content, filename="解卦报告.pdf"):
                     color: #8B4513;
                     font-size: 24px;
                 }}
+                .hexagram-container {{
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    margin: 20px 0;
+                    padding: 10px;
+                    background-color: #FFF8DC;
+                    border-radius: 10px;
+                }}
+                .hexagram-section {{
+                    margin: 10px 20px;
+                    text-align: center;
+                }}
+                .hexagram {{
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    margin: 10px 0;
+                }}
+                .line {{
+                    width: 100px;
+                    height: 10px;
+                    margin: 5px 0;
+                    display: flex;
+                }}
+                .yang {{
+                    background-color: black;
+                    width: 100%;
+                }}
+                .yin {{
+                    display: flex;
+                    width: 100%;
+                }}
+                .yin-left, .yin-right {{
+                    background-color: black;
+                    width: 45%;
+                }}
+                .yin-middle {{
+                    width: 10%;
+                }}
+                .changing {{
+                    background-color: red;
+                }}
             </style>
         </head>
         <body>
             <div class="decoration">☯ ☯ ☯</div>
             <h1>解卦报告</h1>
+            
+            <div class="hexagram-container">
+                {hexagram_html}
+            </div>
+            
             <div>
                 {html_content}
             </div>
@@ -335,7 +505,7 @@ def set_custom_theme():
     """, unsafe_allow_html=True)
 
 def main():
-    # 应用自定义主题（移到set_page_config之后）
+    # 应用自定义主题
     set_custom_theme()
     
     # 添加装饰元素
@@ -347,8 +517,8 @@ def main():
     # 创建卡片式布局
     st.markdown('<div class="card">', unsafe_allow_html=True)
     
-    # 创建两列布局
-    col1, col2 = st.columns(2)
+    # 创建两列布局：左侧输入区，右侧卦图
+    col1, col2 = st.columns([3, 2])
     
     with col1:
         question = st.text_area("所问何事", height=100, 
@@ -358,12 +528,45 @@ def main():
         external_signs = st.text_area("外应", height=100,
                                     placeholder="例如：最近梦见水流，路上遇到黑猫...")
         
-    with col2:
         hexagram = st.selectbox("得卦", HEXAGRAMS)
         changing_lines = st.multiselect(
             "请选择动爻（可多选）",
             ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"]
         )
+    
+    with col2:
+        # 获取卦象编码
+        hexagram_code = get_hexagram_code(hexagram)
+        
+        # 将动爻文本转换为数字列表
+        changing_line_numbers = []
+        for line in changing_lines:
+            if line == "初爻":
+                changing_line_numbers.append(1)
+            elif line == "二爻":
+                changing_line_numbers.append(2)
+            elif line == "三爻":
+                changing_line_numbers.append(3)
+            elif line == "四爻":
+                changing_line_numbers.append(4)
+            elif line == "五爻":
+                changing_line_numbers.append(5)
+            elif line == "上爻":
+                changing_line_numbers.append(6)
+        
+        # 显示卦图
+        if hexagram_code:
+            st.markdown("### 本卦")
+            hexagram_html = generate_hexagram_html(hexagram_code, changing_line_numbers)
+            st.components.v1.html(hexagram_html, height=200)
+            
+            # 如果有动爻，显示变卦
+            if changing_line_numbers:
+                changed_code = calculate_changed_hexagram(hexagram_code, changing_line_numbers)
+                changed_hexagram = get_hexagram_name(changed_code)
+                st.markdown(f"### 变卦：{changed_hexagram}")
+                changed_hexagram_html = generate_hexagram_html(changed_code)
+                st.components.v1.html(changed_hexagram_html, height=200)
     
     # 居中显示按钮
     col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
@@ -413,7 +616,17 @@ def main():
             
             with col2:
                 try:
-                    html_file = create_pdf(interpretation, pdf_filename)
+                    # 获取卦象编码
+                    hexagram_code = get_hexagram_code(hexagram)
+                    
+                    # 创建HTML文件，传入卦象编码和动爻列表
+                    html_file = create_pdf(
+                        interpretation, 
+                        pdf_filename, 
+                        hexagram_code, 
+                        changing_line_numbers
+                    )
+                    
                     with open(html_file, "r", encoding="utf-8") as f:
                         st.download_button(
                             "导出为HTML (可打印为PDF)",
