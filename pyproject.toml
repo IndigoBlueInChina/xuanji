@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "xuanji"
+version = "0.1.0"
+description = "玄机一撮 - 基于邵康节一撮金的周易解卦系统"
+authors = ["Your Name <your.email@example.com>"]
+packages = [{include = "xuanji"}]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+streamlit = "^1.32.0"
+openai = "^1.12.0"
+python-dotenv = "^1.0.0"
+fpdf = "^1.7.2"
+reportlab = "^4.4.1"
+xhtml2pdf = "^0.2.17"
+markdown = "^3.8"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api" 
