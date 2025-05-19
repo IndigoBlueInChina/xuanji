@@ -123,12 +123,27 @@ def get_main_theme():
         /* 动爻标签样式 */
         .changing-line-tag {
             display: inline-block;
-            background-color: #d4a76a;
+            background-color: #d4a76a;  /* 改为更柔和的颜色，从红色改为棕色 */
             color: white;
             padding: 0.2rem 0.5rem;
             border-radius: 3px;
             font-size: 0.9rem;
             margin-right: 0.5rem;
+        }
+        
+        /* 添加选择框样式 */
+        .stSelectbox > div > div {
+            font-size: 0.95rem !important;  /* 减小字号 */
+        }
+        
+        .stMultiselect > div > div {
+            font-size: 0.95rem !important;  /* 减小字号 */
+        }
+        
+        /* 调整选择框背景颜色 */
+        .stSelectbox > div, .stMultiselect > div {
+            background-color: #fffdf7 !important;  /* 使用更和谐的背景色 */
+            border: 1px solid #d4a76a !important;
         }
         
         /* 响应式调整 */

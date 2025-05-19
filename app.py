@@ -18,10 +18,60 @@ load_dotenv()
 # 六十四卦列表
 HEXAGRAMS = list(HEXAGRAM_CODES.keys())
 
+# 在set_custom_theme函数中添加以下代码
 def set_custom_theme():
     """设置自定义主题"""
     # 设置自定义CSS样式
     st.markdown(get_main_theme(), unsafe_allow_html=True)
+    
+    # 添加额外的CSS来覆盖Streamlit默认样式
+    st.markdown("""
+    <style>
+    /* 覆盖Streamlit默认样式 */
+    .stMultiselect [data-baseweb="tag"] {
+        background-color: #d4a76a !important;
+        border-color: #d4a76a !important;
+    }
+    
+    .stMultiselect [data-baseweb="tag"] span {
+        color: white !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* 调整下拉菜单样式 */
+    [data-baseweb="select"] {
+        font-size: 0.95rem !important;
+    }
+    
+    [data-baseweb="popover"] {
+        background-color: #fffdf7 !important;
+    }
+    
+    /* 调整选择框高度 */
+    .stSelectbox, .stMultiselect {
+        margin-bottom: 1rem !important;
+    }
+    
+    /* 调整多选列表项的字体大小 */
+    [data-baseweb="menu"] [role="option"] {
+        font-size: 0.9rem !important;
+    }
+    
+    /* 调整选择标签的样式 */
+    [data-baseweb="tag"] {
+        background-color: #d4a76a !important;
+        border-color: #d4a76a !important;
+        font-size: 0.85rem !important;
+        padding: 2px 8px !important;
+    }
+    
+    /* 调整删除标签按钮的大小 */
+    [data-baseweb="tag"] [data-baseweb="icon"] {
+        width: 14px !important;
+        height: 14px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 def main():
     # 应用自定义主题
@@ -32,10 +82,10 @@ def main():
     
     # 标题区域
     st.markdown('<h1>玄机一撮</h1>', unsafe_allow_html=True)
-    st.markdown('<div class="subheader">基于邵康节一撮金的周易解卦系统</div>', unsafe_allow_html=True)
+    # st.markdown('<div class="subheader">基于邵康节一撮金的解卦系统</div>', unsafe_allow_html=True)
     
     # 创建卡片式布局
-    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('---', unsafe_allow_html=True)
     
     # 创建两列布局：左侧输入区，右侧卦图
 
@@ -52,17 +102,18 @@ def main():
     st.markdown('<div class="section-title">卦象选择</div>', unsafe_allow_html=True)
     hexagram = st.selectbox("得卦", HEXAGRAMS)
     changing_lines = st.multiselect(
-        "请选择动爻（可多选）",
+        "请选择动爻",  # 移除"（可多选）"，因为多选框本身就暗示可以多选
         ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"]
     )
     
-    # 显示已选动爻的标签
-    if changing_lines:
-        st.markdown("<div>已选动爻：</div>", unsafe_allow_html=True)
-        tags_html = ""
-        for line in changing_lines:
-            tags_html += f'<span class="changing-line-tag">{line}</span>'
-        st.markdown(tags_html, unsafe_allow_html=True)
+    # 移除"已选动爻"标签和显示
+    # 以下代码应该被删除：
+    # if changing_lines:
+    #     st.markdown("<div>已选动爻：</div>", unsafe_allow_html=True)
+    #     tags_html = ""
+    #     for line in changing_lines:
+    #         tags_html += f'<span class="changing-line-tag">{line}</span>'
+    #     st.markdown(tags_html, unsafe_allow_html=True)
 
 
     # 获取卦象编码
@@ -174,7 +225,15 @@ def main():
             pdf_filename = f"解卦报告_{file_id}.pdf"
             
             with col1:
-                md_file = create_markdown(interpretation, md_filename)
+                md_file = create_markdown(
+                    interpretation, 
+                    md_filename,
+                    question=question,
+                    background=background,
+                    external_signs=external_signs,
+                    hexagram=hexagram,
+                    changing_lines="、".join(changing_lines) if changing_lines else "无动爻"
+                )
                 with open(md_file, "r", encoding="utf-8") as f:
                     st.download_button(
                         "导出为Markdown",
@@ -194,7 +253,12 @@ def main():
                         interpretation, 
                         pdf_filename, 
                         hexagram_code, 
-                        changing_line_numbers
+                        changing_line_numbers,
+                        question=question,
+                        background=background,
+                        external_signs=external_signs,
+                        hexagram=hexagram,
+                        changing_lines="、".join(changing_lines) if changing_lines else "无动爻"
                     )
                     
                     with open(html_file, "r", encoding="utf-8") as f:
