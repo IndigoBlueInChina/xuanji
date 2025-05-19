@@ -11,8 +11,6 @@ python = "^3.11"
 streamlit = "^1.32.0"
 openai = "^1.12.0"
 python-dotenv = "^1.0.0"
-fpdf = "^1.7.2"
-reportlab = "^4.4.1"
 xhtml2pdf = "^0.2.17"
 markdown = "^3.8"
 
