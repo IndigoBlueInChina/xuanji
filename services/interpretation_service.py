@@ -7,17 +7,24 @@ from openai import OpenAI
 import os
 from hexagram_codes import get_hexagram_code, get_hexagram_name, calculate_changed_hexagram, calculate_inverse_hexagram, calculate_mutual_hexagram, get_yicuojin_sentence
 
-# 初始化OpenAI客户端
-client = OpenAI(
-    api_key=os.getenv("LLM_SERVICE_API_KEY"),
-    base_url=os.getenv("LLM_SERVICE_BASE_URL")
-)
+# Remove the global client initialization
+# client = OpenAI(...)
 
 # 配置LLM模型名称
 LLM_MODEL = os.getenv("LLM_SERVICE_MODEL", "qwen-plus")
 
+def get_openai_client():
+    """Get OpenAI client with lazy initialization"""
+    return OpenAI(
+        api_key=os.getenv("LLM_SERVICE_API_KEY"),
+        base_url=os.getenv("LLM_SERVICE_BASE_URL")
+    )
+
 def get_interpretation(question, background, external_signs, hexagram, changing_lines):
     """调用OpenAI API获取卦象解读"""
+    # Initialize client when needed
+    client = get_openai_client()
+    
     prompt_parts = [f"作为一位精通邵康节一撮金的周易专家，请解读以下情况：\n\n问题：{question}"]
     
     if background.strip():

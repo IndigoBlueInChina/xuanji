@@ -8,11 +8,13 @@ from styles.theme import get_report_html_style, get_hexagram_style
 from utils.hexagram_renderer import generate_hexagram_html
 from hexagram_codes import get_hexagram_name, calculate_changed_hexagram, calculate_inverse_hexagram, calculate_mutual_hexagram
 import datetime
+import pytz  # 导入pytz库处理时区
 
 def create_markdown(content, filename="解卦报告.md", question="", background="", external_signs="", hexagram="", changing_lines=""):
     """创建Markdown文件"""
-    # 获取当前日期和时间
-    now = datetime.datetime.now()
+    # 获取当前日期和时间（使用中国时区）
+    china_tz = pytz.timezone('Asia/Shanghai')
+    now = datetime.datetime.now(china_tz)
     date_str = now.strftime("%Y年%m月%d日 %H:%M")
     
     # 构建问卦信息部分
@@ -48,8 +50,9 @@ def create_pdf(content, filename="解卦报告.pdf", hexagram_code=None, changin
         # 创建HTML文件而不是PDF
         html_filename = filename.replace('.pdf', '.html')
         
-        # 获取当前日期和时间
-        now = datetime.datetime.now()
+        # 获取当前日期和时间（使用中国时区）
+        china_tz = pytz.timezone('Asia/Shanghai')
+        now = datetime.datetime.now(china_tz)
         date_str = now.strftime("%Y年%m月%d日 %H:%M")
         
         # 构建问卦信息HTML
