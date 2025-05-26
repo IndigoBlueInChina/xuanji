@@ -1,5 +1,7 @@
 import streamlit as st
 import os
+import subprocess
+import datetime
 from dotenv import load_dotenv
 from hexagram_codes import HEXAGRAM_CODES, get_hexagram_code, get_hexagram_name, calculate_changed_hexagram, calculate_inverse_hexagram, calculate_mutual_hexagram
 
@@ -27,6 +29,15 @@ def set_custom_theme():
     # 添加额外的CSS来覆盖Streamlit默认样式
     st.markdown("""
     <style>
+    /* 版本信息样式 */
+    .version-info {
+        color: #8b7355;
+        font-size: 0.8rem;
+        text-align: right;
+        margin-top: 20px;
+        font-family: 'Courier New', monospace;
+    }
+    
     /* 覆盖Streamlit默认样式 */
     .stMultiselect [data-baseweb="tag"] {
         background-color: #d4a76a !important;
@@ -80,9 +91,13 @@ def main():
     # 添加装饰元素
     st.markdown('<div class="decoration-top">☯ ☯ ☯</div>', unsafe_allow_html=True)
     
-    # 标题区域
-    st.markdown('<h1>玄机一撮</h1>', unsafe_allow_html=True)
-    # st.markdown('<div class="subheader">基于邵康节一撮金的解卦系统</div>', unsafe_allow_html=True)
+    # 标题区域和版本信息
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.markdown('<h1>玄机一撮</h1>', unsafe_allow_html=True)
+    with col2:
+        version_info = get_version_info()
+        st.markdown(f'<div style="text-align: right; color: #8b7355; font-size: 0.8rem; margin-top: 20px;">版本: {version_info}</div>', unsafe_allow_html=True)
     
     # 创建卡片式布局
     st.markdown('---', unsafe_allow_html=True)
@@ -276,6 +291,33 @@ def main():
     # 添加页脚
     st.markdown('<div class="footer">玄机一撮 © 2025 | 周易解卦系统</div>', unsafe_allow_html=True)
     st.markdown('<div class="decoration-bottom">☯ ☯ ☯</div>', unsafe_allow_html=True)
+
+def get_version_info():
+    """获取版本信息"""
+    try:
+        # 获取最新的commit哈希值（短版本）
+        commit_hash = subprocess.check_output(
+            ['git', 'rev-parse', '--short', 'HEAD'], 
+            cwd=os.path.dirname(__file__),
+            stderr=subprocess.DEVNULL
+        ).decode('utf-8').strip()
+        
+        # 获取最新commit的时间戳
+        commit_time = subprocess.check_output(
+            ['git', 'log', '-1', '--format=%ci'], 
+            cwd=os.path.dirname(__file__),
+            stderr=subprocess.DEVNULL
+        ).decode('utf-8').strip()
+        
+        # 转换为更友好的格式
+        commit_datetime = datetime.datetime.strptime(commit_time[:19], '%Y-%m-%d %H:%M:%S')
+        formatted_time = commit_datetime.strftime('%Y-%m-%d %H:%M')
+        
+        return f"v{commit_hash} ({formatted_time})"
+    except:
+        # 如果获取Git信息失败，使用当前时间戳
+        current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+        return f"dev ({current_time})"
 
 if __name__ == "__main__":
     main()

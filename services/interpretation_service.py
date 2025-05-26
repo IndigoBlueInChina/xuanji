@@ -76,10 +76,10 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
         # tiyu_analysis = analyze_tiyu_wuxing(original_code, changing_line_numbers)
         
         # 分析交互卦的体用五行生克关系
-        mutual_tiyu_analysis = analyze_tiyu_wuxing(mutual_code)
+        mutual_tiyu_analysis = analyze_tiyu_wuxing(mutual_code, changing_line_numbers)
         
         # 分析变卦的体用五行生克关系
-        changed_tiyu_analysis = analyze_tiyu_wuxing(changed_code)
+        changed_tiyu_analysis = analyze_tiyu_wuxing(changed_code, changing_line_numbers)
         
         # 添加到提示中
         if yicuojin_sentence:
@@ -97,7 +97,7 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
         # prompt_parts.append(f"本卦体用五行：{tiyu_analysis}")
     
     prompt_parts.append("""
-请作为精通周易与邵康节一撮金的专家，从以下五个维度进行系统解读各个卦象所表达的内容，不要添加额外的解释：
+请作为精通周易、邵康节一撮金、五行能量属性以及生克体用的专家，从以下五个维度进行系统解读各个卦象所表达的内容，不要添加额外的解释：
 
 1. 本卦：立足当下，直指核心 
    - 现状本质：当前问题的直接表现是什么？本卦的卦名、卦辞、爻辞如何描述现状？ 
@@ -106,7 +106,7 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
    - 一撮金原文：分析动爻的位置、所附带的评价（如‘上上’、‘下下’等），以及具体的爻辞内容，解读当前卦象对问题的核心指引。
 
 2. 互卦：洞察过程，挖掘动因 
-   - 内在逻辑：互卦如何从本卦中间四爻演化而来？它揭示了哪些隐藏的因果或中间阶段？ 
+   - 内在逻辑：揭示了哪些隐藏的因果或中间阶段？ 
    - 潜在动力与五行能量：互卦的卦象是否暗示了推动当前局面的深层因素（如冲突、合作、转折）？ 互卦的体用五行能量对应的力量、能量如何影响当前状态？
    - 行动警示：互卦的卦义是否提示了需注意的策略或风险？
 

@@ -627,26 +627,28 @@ def analyze_tiyu_wuxing(hexagram_code, changing_lines=None):
         lower_has_change = any(line in [1, 2, 3] for line in changing_lines)
         
         if upper_has_change and not lower_has_change:
-            # 上卦有动爻，上卦为用，下卦为体
+            print(" --- 上卦有动爻，上卦为用，下卦为体")
             ti_name, ti_element = lower_name, lower_element
             yong_name, yong_element = upper_name, upper_element
-            tiyu_desc = f"下卦{ti_name}为体，上卦{yong_name}为用"
+            tiyu_desc = f"下卦{ti_name}为体,为{ti_element},上卦{yong_name}为用,为{yong_element}"
         elif lower_has_change and not upper_has_change:
-            # 下卦有动爻，下卦为用，上卦为体
+            print(" --- 下卦有动爻，下卦为用，上卦为体")
             ti_name, ti_element = upper_name, upper_element
             yong_name, yong_element = lower_name, lower_element
-            tiyu_desc = f"上卦{ti_name}为体，下卦{yong_name}为用"
+            tiyu_desc = f"上卦{ti_name}为体,为{ti_element}，下卦{yong_name}为用,为{yong_element}"
         else:
-            # 上下卦都有动爻或都无动爻，按传统以下卦为体，上卦为用
+            print(" --- 上下卦都有动爻或都无动爻，按传统以下卦为体，上卦为用")
             ti_name, ti_element = lower_name, lower_element
             yong_name, yong_element = upper_name, upper_element
-            tiyu_desc = f"下卦{ti_name}为体，上卦{yong_name}为用"
+            tiyu_desc = f"下卦{ti_name}为体,为{ti_element}，上卦{yong_name}为用,为{yong_element}"
     else:
-        # 无动爻时，按传统以下卦为体，上卦为用
+        print(" ---  无动爻时，按传统以下卦为体，上卦为用")
         ti_name, ti_element = lower_name, lower_element
         yong_name, yong_element = upper_name, upper_element
-        tiyu_desc = f"下卦{ti_name}为体，上卦{yong_name}为用"
+        tiyu_desc = f"下卦{ti_name}为体,为{ti_element}，上卦{yong_name}为用,为{yong_element}"
     
+    print(tiyu_desc)
+
     # 分析五行生克关系
     wuxing_relation = analyze_wuxing_relation(ti_element, yong_element)
     
@@ -654,20 +656,20 @@ def analyze_tiyu_wuxing(hexagram_code, changing_lines=None):
     if "生" in wuxing_relation:
         if wuxing_relation.startswith(yong_element):
             # 用生体，吉
-            result_desc = f"用生体，主吉利。用为{yong_name}{yong_element}，体为{ti_name}{ti_element}。"
+            result_desc = f"用生体，主吉利。{tiyu_desc}。"
         else:
             # 体生用，泄气
-            result_desc = f"体生用，主耗泄。体为{ti_name}{ti_element}，用为{yong_name}{yong_element}。"
+            result_desc = f"体生用，主耗泄。{tiyu_desc}。"
     elif "克" in wuxing_relation:
         if wuxing_relation.startswith(yong_element):
             # 用克体，凶
-            result_desc = f"用克体，主不利。用为{yong_name}{yong_element}，体为{ti_name}{ti_element}。"
+            result_desc = f"用克体，主不利。{tiyu_desc}。"
         else:
             # 体克用，有制
-            result_desc = f"体克用，主有制约力。体为{ti_name}{ti_element}，用为{yong_name}{yong_element}。"
+            result_desc = f"体克用，主有制约力。{tiyu_desc}。"
     elif "同气" in wuxing_relation:
-        result_desc = f"体用比合，主平稳。体为{ti_name}{ti_element}，用为{yong_name}{yong_element}。"
+        result_desc = f"体用比合，主平稳。{tiyu_desc}。"
     else:
-        result_desc = f"体用无直接生克，主中平。体为{ti_name}{ti_element}，用为{yong_name}{yong_element}。"
+        result_desc = f"体用无直接生克，主中平。{tiyu_desc}。"
     
     return result_desc
