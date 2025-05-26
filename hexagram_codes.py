@@ -307,7 +307,7 @@ YICUOJIN_SENTENCES = {
     "风雷益卦": {
         1: "初九初爻上中：大事可成功，有益还无咎。云内执鞭人，报在三秋后。",
         3: "六三三爻下下：无踪又无迹，远近终难觅。旱海莫行舟，何劳空费力。",
-        5: "九五五爻上上：子结花残，花开枯树。屋头春意喜，笑嘻嘻。"
+        5: "九五五爻上上：子结花残，花开枯树。屋头春意，喜笑嘻嘻。"
     },
     "风水涣卦": {
         1: "初六初爻上上：云静日当中，光辉到处通。道途逢水源，千里快如风。",
@@ -530,3 +530,144 @@ if __name__ == "__main__":
     # 测试交互卦计算
     mutual_code = calculate_mutual_hexagram(original_code)
     print("天水讼卦的交互卦:", get_hexagram_name(mutual_code))
+
+# 八卦与五行的对应关系
+TRIGRAM_WUXING = {
+    "111": ("乾", "金"),  # 乾卦属金
+    "011": ("兑", "金"),  # 兑卦属金
+    "000": ("坤", "土"),  # 坤卦属土
+    "100": ("艮", "土"),  # 艮卦属土
+    "001": ("震", "木"),  # 震卦属木
+    "110": ("巽", "木"),  # 巽卦属木
+    "010": ("坎", "水"),  # 坎卦属水
+    "101": ("离", "火"),  # 离卦属火
+}
+
+# 五行相生相克关系
+WUXING_RELATIONS = {
+    "生": {
+        "金": "水",  # 金生水
+        "水": "木",  # 水生木
+        "木": "火",  # 木生火
+        "火": "土",  # 火生土
+        "土": "金",  # 土生金
+    },
+    "克": {
+        "金": "木",  # 金克木
+        "木": "土",  # 木克土
+        "土": "水",  # 土克水
+        "水": "火",  # 水克火
+        "火": "金",  # 火克金
+    }
+}
+
+def get_trigram_wuxing(trigram_code):
+    """获取三爻卦的五行属性
+    
+    Args:
+        trigram_code: 三爻卦编码，如"111"
+    
+    Returns:
+        tuple: (卦名, 五行属性)
+    """
+    return TRIGRAM_WUXING.get(trigram_code, ("未知", "未知"))
+
+def analyze_wuxing_relation(element1, element2):
+    """分析两个五行之间的关系
+    
+    Args:
+        element1: 第一个五行属性
+        element2: 第二个五行属性
+    
+    Returns:
+        str: 关系描述
+    """
+    if element1 == element2:
+        return "同气相求"
+    
+    # 检查相生关系
+    if WUXING_RELATIONS["生"].get(element1) == element2:
+        return f"{element1}生{element2}"
+    elif WUXING_RELATIONS["生"].get(element2) == element1:
+        return f"{element2}生{element1}"
+    
+    # 检查相克关系
+    if WUXING_RELATIONS["克"].get(element1) == element2:
+        return f"{element1}克{element2}"
+    elif WUXING_RELATIONS["克"].get(element2) == element1:
+        return f"{element2}克{element1}"
+    
+    return "无直接生克关系"
+
+def analyze_tiyu_wuxing(hexagram_code, changing_lines=None):
+    """分析卦象的体用五行生克关系
+    
+    Args:
+        hexagram_code: 六爻卦编码，如"111010"
+        changing_lines: 动爻列表，从1开始，如[1, 3, 5]
+    
+    Returns:
+        str: 体用五行生克关系的分析结果
+    """
+    if not hexagram_code or len(hexagram_code) != 6:
+        return "卦象编码无效"
+    
+    # 分离上下卦
+    upper_trigram = hexagram_code[0:3]  # 上卦
+    lower_trigram = hexagram_code[3:6]  # 下卦
+    
+    # 获取上下卦的五行属性
+    upper_name, upper_element = get_trigram_wuxing(upper_trigram)
+    lower_name, lower_element = get_trigram_wuxing(lower_trigram)
+    
+    # 确定体用关系
+    if changing_lines:
+        # 有动爻时，根据动爻位置确定体用
+        upper_has_change = any(line in [4, 5, 6] for line in changing_lines)
+        lower_has_change = any(line in [1, 2, 3] for line in changing_lines)
+        
+        if upper_has_change and not lower_has_change:
+            # 上卦有动爻，上卦为用，下卦为体
+            ti_name, ti_element = lower_name, lower_element
+            yong_name, yong_element = upper_name, upper_element
+            tiyu_desc = f"下卦{ti_name}为体，上卦{yong_name}为用"
+        elif lower_has_change and not upper_has_change:
+            # 下卦有动爻，下卦为用，上卦为体
+            ti_name, ti_element = upper_name, upper_element
+            yong_name, yong_element = lower_name, lower_element
+            tiyu_desc = f"上卦{ti_name}为体，下卦{yong_name}为用"
+        else:
+            # 上下卦都有动爻或都无动爻，按传统以下卦为体，上卦为用
+            ti_name, ti_element = lower_name, lower_element
+            yong_name, yong_element = upper_name, upper_element
+            tiyu_desc = f"下卦{ti_name}为体，上卦{yong_name}为用"
+    else:
+        # 无动爻时，按传统以下卦为体，上卦为用
+        ti_name, ti_element = lower_name, lower_element
+        yong_name, yong_element = upper_name, upper_element
+        tiyu_desc = f"下卦{ti_name}为体，上卦{yong_name}为用"
+    
+    # 分析五行生克关系
+    wuxing_relation = analyze_wuxing_relation(ti_element, yong_element)
+    
+    # 根据生克关系给出吉凶判断
+    if "生" in wuxing_relation:
+        if wuxing_relation.startswith(yong_element):
+            # 用生体，吉
+            result_desc = f"用生体，主吉利。用为{yong_name}{yong_element}，体为{ti_name}{ti_element}。"
+        else:
+            # 体生用，泄气
+            result_desc = f"体生用，主耗泄。体为{ti_name}{ti_element}，用为{yong_name}{yong_element}。"
+    elif "克" in wuxing_relation:
+        if wuxing_relation.startswith(yong_element):
+            # 用克体，凶
+            result_desc = f"用克体，主不利。用为{yong_name}{yong_element}，体为{ti_name}{ti_element}。"
+        else:
+            # 体克用，有制
+            result_desc = f"体克用，主有制约力。体为{ti_name}{ti_element}，用为{yong_name}{yong_element}。"
+    elif "同气" in wuxing_relation:
+        result_desc = f"体用比合，主平稳。体为{ti_name}{ti_element}，用为{yong_name}{yong_element}。"
+    else:
+        result_desc = f"体用无直接生克，主中平。体为{ti_name}{ti_element}，用为{yong_name}{yong_element}。"
+    
+    return result_desc
