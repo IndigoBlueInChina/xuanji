@@ -27,7 +27,7 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
     # Initialize client when needed
     client = get_openai_client()
     
-    prompt_parts = [f"作为一位精通邵康节一撮金的周易专家，请解读以下情况：\n\n问题：{question}"]
+    prompt_parts = [f"作为一位精通易经和邵康节一撮金的周易专家，请解读以下情况：\n\n问题：{question}"]
     
     if background.strip():
         prompt_parts.append(f"背景：{background}")
@@ -97,7 +97,7 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
         # prompt_parts.append(f"本卦体用五行：{tiyu_analysis}")
     
     prompt_parts.append("""
-请作为精通周易、邵康节一撮金、五行能量属性以及生克体用的专家，从以下五个维度进行系统解读各个卦象所表达的内容，不要添加额外的解释：
+请作为精通周易、邵康节一撮金、五行能量属性以及生克体用的专家，从以下五个维度进行系统解读各个卦象所表达的结论和内容，趋吉避凶，不要添加额外的解释：
 
 1. 本卦：立足当下，直指核心 
    - 现状本质：当前问题的直接表现是什么？本卦的卦名、卦辞、爻辞如何描述现状？ 
