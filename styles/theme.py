@@ -319,6 +319,40 @@ def get_report_html_style():
             font-size: 0.9rem;
         }
         
+        /* 卦象样式 */
+        .hexagram {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            gap: 10px;
+            margin: 1rem auto;
+            width: 100px;
+        }
+        
+        .line {
+            width: 100px;
+            height: 12px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        
+        .yang {
+            background-color: #000;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .yin {
+            background-color: #000;
+            width: 45%;
+            height: 100%;
+        }
+        
+        .changing {
+            background-color: #e60000;
+        }
+        
         @media print {
             body {
                 background-color: white;
@@ -329,6 +363,51 @@ def get_report_html_style():
                 box-shadow: none;
                 border: none;
                 padding: 0;
+            }
+            
+            /* 确保卦象在打印时正确显示 */
+            .hexagram {
+                display: flex !important;
+                flex-direction: column-reverse !important;
+                align-items: center !important;
+                gap: 10px !important;
+                page-break-inside: avoid !important;
+                margin: 1rem auto !important;
+                width: 100px !important;
+            }
+            
+            .line {
+                width: 100px !important;
+                height: 12px !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                gap: 10px !important;
+            }
+            
+            .yang {
+                background-color: #000 !important;
+                width: 100% !important;
+                height: 100% !important;
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact !important;
+            }
+            
+            .yin {
+                background-color: #000 !important;
+                width: 45% !important;
+                height: 100% !important;
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact !important;
+            }
+            
+            .changing {
+                background-color: #e60000 !important;
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact !important;
+            }
+            
+            .hexagram-display {
+                page-break-inside: avoid !important;
             }
             
             @page {

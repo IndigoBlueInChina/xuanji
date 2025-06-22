@@ -4,6 +4,8 @@ import subprocess
 import datetime
 from dotenv import load_dotenv
 from hexagram_codes import HEXAGRAM_CODES, get_hexagram_code, get_hexagram_name, calculate_changed_hexagram, calculate_inverse_hexagram, calculate_mutual_hexagram
+# 导入新的卦象属性模块
+from hexagram_attributes import get_hexagram_display, get_all_hexagram_displays, get_hexagram_name_from_display
 
 # 导入拆分出去的模块
 from services.interpretation_service import get_interpretation
@@ -115,7 +117,14 @@ def main():
                                 placeholder="例如：最近梦见水流，路上遇到黑猫...")
     
     st.markdown('<div class="section-title">卦象选择</div>', unsafe_allow_html=True)
-    hexagram = st.selectbox("得卦", HEXAGRAMS)
+    
+    # 使用带符号的卦象显示列表
+    hexagram_displays = get_all_hexagram_displays()
+    selected_display = st.selectbox("得卦", hexagram_displays)
+    
+    # 从显示名称中提取实际卦名
+    hexagram = get_hexagram_name_from_display(selected_display)
+    
     changing_lines = st.multiselect(
         "请选择动爻",  # 移除"（可多选）"，因为多选框本身就暗示可以多选
         ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"]
@@ -160,7 +169,7 @@ def main():
         
         # 本卦
         with col1:
-            st.markdown(f'<div class="hexagram-container"><div class="hexagram-title">本卦：{hexagram}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="hexagram-container"><div class="hexagram-title">本卦：{get_hexagram_display(hexagram)}</div>', unsafe_allow_html=True)
             hexagram_html = generate_hexagram_html(hexagram_code, changing_line_numbers)
             st.components.v1.html(hexagram_html, height=150)
             st.markdown('</div>', unsafe_allow_html=True)
@@ -169,7 +178,7 @@ def main():
         with col2:
             mutual_code = calculate_mutual_hexagram(hexagram_code)
             mutual_hexagram = get_hexagram_name(mutual_code)
-            st.markdown(f'<div class="hexagram-container"><div class="hexagram-title">交互卦：{mutual_hexagram}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="hexagram-container"><div class="hexagram-title">交互卦：{get_hexagram_display(mutual_hexagram)}</div>', unsafe_allow_html=True)
             mutual_hexagram_html = generate_hexagram_html(mutual_code)
             st.components.v1.html(mutual_hexagram_html, height=150)
             st.markdown('</div>', unsafe_allow_html=True)
@@ -179,7 +188,7 @@ def main():
             if changing_line_numbers:
                 changed_code = calculate_changed_hexagram(hexagram_code, changing_line_numbers)
                 changed_hexagram = get_hexagram_name(changed_code)
-                st.markdown(f'<div class="hexagram-container"><div class="hexagram-title">变卦：{changed_hexagram}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="hexagram-container"><div class="hexagram-title">变卦：{get_hexagram_display(changed_hexagram)}</div>', unsafe_allow_html=True)
                 changed_hexagram_html = generate_hexagram_html(changed_code, changing_line_numbers, mark_changed_lines=True)
                 st.components.v1.html(changed_hexagram_html, height=150)
                 st.markdown('</div>', unsafe_allow_html=True)
@@ -188,7 +197,7 @@ def main():
         with col4:
             inverse_code = calculate_inverse_hexagram(hexagram_code)
             inverse_hexagram = get_hexagram_name(inverse_code)
-            st.markdown(f'<div class="hexagram-container"><div class="hexagram-title">综卦：{inverse_hexagram}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="hexagram-container"><div class="hexagram-title">综卦：{get_hexagram_display(inverse_hexagram)}</div>', unsafe_allow_html=True)
             inverse_hexagram_html = generate_hexagram_html(inverse_code)
             st.components.v1.html(inverse_hexagram_html, height=150)
             st.markdown('</div>', unsafe_allow_html=True)
@@ -213,7 +222,7 @@ def main():
         st.markdown(f"""
         <div style="background-color: #f0e6d2; padding: 1rem; border-radius: 5px; margin-bottom: 1.5rem;">
             <strong>问题：</strong>{question}<br>
-            <strong>卦象：</strong>{hexagram} {' '.join([f'<span class="changing-line-tag">{line}</span>' for line in changing_lines]) if changing_lines else '(无动爻)'}
+            <strong>卦象：</strong>{get_hexagram_display(hexagram)} {' '.join([f'<span class="changing-line-tag">{line}</span>' for line in changing_lines]) if changing_lines else '(无动爻)'}
         </div>
         """, unsafe_allow_html=True)
         

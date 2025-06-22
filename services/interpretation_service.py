@@ -7,6 +7,8 @@ from openai import OpenAI
 import os
 # 在导入部分添加新函数
 from hexagram_codes import get_hexagram_code, get_hexagram_name, calculate_changed_hexagram, calculate_inverse_hexagram, calculate_mutual_hexagram, get_yicuojin_sentence, analyze_tiyu_wuxing
+# 导入卦象属性模块
+from hexagram_attributes import get_hexagram_attributes, get_hexagram_symbol
 
 # Remove the global client initialization
 # client = OpenAI(...)
@@ -35,11 +37,52 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
     if external_signs.strip():
         prompt_parts.append(f"外应：{external_signs}")
     
-    prompt_parts.append(f"所得卦象：{hexagram}")
+    # 获取卦象符号
+    hexagram_symbol = get_hexagram_symbol(hexagram)
+    prompt_parts.append(f"所得卦象：{hexagram_symbol} {hexagram}")
     prompt_parts.append(f"动爻：{changing_lines}")
     
     # 获取原卦的编码
     original_code = get_hexagram_code(hexagram)
+    
+    # 获取本卦的能量属性
+    hexagram_attr = get_hexagram_attributes(hexagram)
+    if hexagram_attr:
+        # 添加卦象能量属性到提示中
+        if "combined_meaning" in hexagram_attr:
+            # 复合卦
+            prompt_parts.append(f"本卦能量属性：{hexagram_attr['combined_meaning']}")
+            
+            # 添加上下卦的详细信息
+            upper_gua = hexagram_attr.get("upper_gua", "")
+            lower_gua = hexagram_attr.get("lower_gua", "")
+            
+            if upper_gua and lower_gua:
+                upper_energy = hexagram_attr.get("upper_energy", "")
+                lower_energy = hexagram_attr.get("lower_energy", "")
+                upper_element = hexagram_attr.get("upper_element", "")
+                lower_element = hexagram_attr.get("lower_element", "")
+                
+                prompt_parts.append(f"本卦上卦：{upper_gua}卦，五行属{upper_element}，核心能量为{upper_energy}")
+                prompt_parts.append(f"本卦下卦：{lower_gua}卦，五行属{lower_element}，核心能量为{lower_energy}")
+        else:
+            # 单卦
+            core_energy = hexagram_attr.get("core_energy", "")
+            if core_energy:
+                prompt_parts.append(f"本卦能量属性：{core_energy}")
+                
+                # 添加更多单卦详细信息
+                natural_meaning = hexagram_attr.get("natural_meaning", "")
+                energy_traits = hexagram_attr.get("energy_traits", "")
+                element = hexagram_attr.get("element", "")
+                key_traits = hexagram_attr.get("key_traits", "")
+                
+                if natural_meaning:
+                    prompt_parts.append(f"本卦象征：{natural_meaning}")
+                if element:
+                    prompt_parts.append(f"本卦五行：{element}")
+                if key_traits:
+                    prompt_parts.append(f"本卦特性：{key_traits}")
     
     # 添加计算得到的交互卦、变卦、综卦的名称
     if changing_lines and original_code:
@@ -73,7 +116,8 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
         yicuojin_sentence = get_yicuojin_sentence(hexagram, changing_line_numbers)
         
         # 分析本卦的体用五行生克关系
-        # tiyu_analysis = analyze_tiyu_wuxing(original_code, changing_line_numbers)
+        tiyu_analysis = analyze_tiyu_wuxing(original_code, changing_line_numbers)
+        prompt_parts.append(f"本卦体用五行：{tiyu_analysis}")
         
         # 分析交互卦的体用五行生克关系
         mutual_tiyu_analysis = analyze_tiyu_wuxing(mutual_code, changing_line_numbers)
@@ -84,17 +128,38 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
         # 添加到提示中
         if yicuojin_sentence:
             prompt_parts.append(f"一撮金原文：{yicuojin_sentence}")
-        if mutual_hexagram:
-            prompt_parts.append(f"交互卦：{mutual_hexagram}")
-            prompt_parts.append(f"交互卦体用五行：{mutual_tiyu_analysis}")
-        if changed_hexagram:
-            prompt_parts.append(f"变卦：{changed_hexagram}")
-            prompt_parts.append(f"变卦体用五行：{changed_tiyu_analysis}")
-        if inverse_hexagram:
-            prompt_parts.append(f"综卦：{inverse_hexagram}")
         
-        # 添加本卦的体用五行分析
-        # prompt_parts.append(f"本卦体用五行：{tiyu_analysis}")
+        # 添加交互卦信息
+        if mutual_hexagram:
+            mutual_symbol = get_hexagram_symbol(mutual_hexagram)
+            prompt_parts.append(f"交互卦：{mutual_symbol} {mutual_hexagram}")
+            prompt_parts.append(f"交互卦体用五行：{mutual_tiyu_analysis}")
+            
+            # 添加交互卦能量属性
+            mutual_attr = get_hexagram_attributes(mutual_hexagram)
+            if mutual_attr and "combined_meaning" in mutual_attr:
+                prompt_parts.append(f"交互卦能量属性：{mutual_attr['combined_meaning']}")
+        
+        # 添加变卦信息
+        if changed_hexagram:
+            changed_symbol = get_hexagram_symbol(changed_hexagram)
+            prompt_parts.append(f"变卦：{changed_symbol} {changed_hexagram}")
+            prompt_parts.append(f"变卦体用五行：{changed_tiyu_analysis}")
+            
+            # 添加变卦能量属性
+            changed_attr = get_hexagram_attributes(changed_hexagram)
+            if changed_attr and "combined_meaning" in changed_attr:
+                prompt_parts.append(f"变卦能量属性：{changed_attr['combined_meaning']}")
+        
+        # 添加综卦信息
+        if inverse_hexagram:
+            inverse_symbol = get_hexagram_symbol(inverse_hexagram)
+            prompt_parts.append(f"综卦：{inverse_symbol} {inverse_hexagram}")
+            
+            # 添加综卦能量属性
+            inverse_attr = get_hexagram_attributes(inverse_hexagram)
+            if inverse_attr and "combined_meaning" in inverse_attr:
+                prompt_parts.append(f"综卦能量属性：{inverse_attr['combined_meaning']}")
     
     prompt_parts.append("""
 请作为精通周易、邵康节一撮金、五行能量属性以及生克体用的专家，从以下五个维度进行系统解读各个卦象所表达的结论和内容，趋吉避凶，不要添加额外的解释：
@@ -103,7 +168,7 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
    - 现状本质：当前问题的直接表现是什么？本卦的卦名、卦辞、爻辞如何描述现状？ 
    - 关键矛盾：六爻中哪一爻（动爻/静爻）是核心？爻位（初至上）对应的身份、阶段有何启示？ 
    - 能量特性：本卦的上下卦（如天、地、水、火）象征何种力量的互动？如何影响当前状态？
-   - 一撮金原文：分析动爻的位置、所附带的评价（如‘上上’、‘下下’等），以及具体的爻辞内容，解读当前卦象对问题的核心指引。
+   - 一撮金原文：分析动爻的位置、所附带的评价（如'上上'、'下下'等），以及具体的爻辞内容，解读当前卦象对问题的核心指引。
 
 2. 互卦：洞察过程，挖掘动因 
    - 内在逻辑：揭示了哪些隐藏的因果或中间阶段？ 
@@ -127,7 +192,7 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
    - 结论：从趋吉避凶、趋利避害的角度，给出明确的结论。
    - 行动建议：基于四卦综合分析及结论，提出具体、可操作的建议。
 
-请在解读过程中，引用相关的系辞、卦辞、爻辞、彖辞、象辞和一撮金原文，使解读既有理论依据，又有实践指导意义。
+请在解读过程中，引用相关的系辞、卦辞、爻辞、彖辞、象辞和一撮金原文，使解读既有理论依据，又有实践指导意义。同时，请充分利用各卦象的能量属性来分析问题的本质和发展趋势。
 """)
     
     prompt = "\n".join(prompt_parts)

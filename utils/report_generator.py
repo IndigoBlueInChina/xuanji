@@ -94,12 +94,12 @@ def create_pdf(content, filename="解卦报告.pdf", hexagram_code=None, changin
             hexagram_style = get_hexagram_style()
             
             # 本卦
-            original_hexagram_html = generate_hexagram_html(hexagram_code, changing_line_numbers)
+            original_hexagram_html = generate_hexagram_html(hexagram_code, changing_line_numbers, include_html_wrapper=False)
             
             # 交互卦
             mutual_code = calculate_mutual_hexagram(hexagram_code)
             mutual_hexagram = get_hexagram_name(mutual_code)
-            mutual_hexagram_html = generate_hexagram_html(mutual_code)
+            mutual_hexagram_html = generate_hexagram_html(mutual_code, include_html_wrapper=False)
             
             # 变卦（如果有动爻）
             changed_hexagram_html = ""
@@ -109,14 +109,14 @@ def create_pdf(content, filename="解卦报告.pdf", hexagram_code=None, changin
                 changed_hexagram_html = f"""
                 <div class="hexagram-item">
                     <div class="hexagram-title">变卦：{changed_hexagram}</div>
-                    {generate_hexagram_html(changed_code, changing_line_numbers, mark_changed_lines=True)}
+                    {generate_hexagram_html(changed_code, changing_line_numbers, mark_changed_lines=True, include_html_wrapper=False)}
                 </div>
                 """
             
             # 综卦
             inverse_code = calculate_inverse_hexagram(hexagram_code)
             inverse_hexagram = get_hexagram_name(inverse_code)
-            inverse_hexagram_html = generate_hexagram_html(inverse_code)
+            inverse_hexagram_html = generate_hexagram_html(inverse_code, include_html_wrapper=False)
             
             # 组合卦图HTML
             hexagram_html = f"""
