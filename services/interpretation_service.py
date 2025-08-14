@@ -5,10 +5,13 @@
 import streamlit as st
 from openai import OpenAI
 import os
+from datetime import datetime
 # 在导入部分添加新函数
 from hexagram_codes import get_hexagram_code, get_hexagram_name, calculate_changed_hexagram, calculate_inverse_hexagram, calculate_mutual_hexagram, get_yicuojin_sentence, analyze_tiyu_wuxing
 # 导入卦象属性模块
 from hexagram_attributes import get_hexagram_attributes, get_hexagram_symbol
+# 导入节气模块
+from utils.solar_terms import get_detailed_solar_info
 
 # Remove the global client initialization
 # client = OpenAI(...)
@@ -29,7 +32,14 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
     # Initialize client when needed
     client = get_openai_client()
     
-    prompt_parts = [f"作为一位精通易经和邵康节一撮金的周易专家，请解读以下情况：\n\n问题：{question}"]
+    # 获取当前日期信息
+    now = datetime.now()
+    current_date = now.strftime("%Y年%m月%d日")
+    
+    # 获取节气和候信息
+    solar_info = get_detailed_solar_info(now)
+    
+    prompt_parts = [f"作为一位精通易经和邵康节一撮金的周易专家，请解读以下情况：\n\n当前日期：{current_date}（{solar_info['full_description']}）\n问题：{question}"]
     
     if background.strip():
         prompt_parts.append(f"背景：{background}")
