@@ -144,5 +144,5 @@ def get_detailed_solar_info(date=None):
         **info,
         **message_info,
         'annual_pentad': annual_pentad,
-        'full_description': f"{info['solar_term']}第{info['pentad_number']}候（全年第{annual_pentad}候）：{info['pentad_name']}，十二消息卦：{message_info['message_hexagram']}"
+        'full_description': f"二十四节气：{info['solar_term']}，第{info['pentad_number']}候：{info['pentad_name']}；十二消息卦：{message_info['message_hexagram']}"
     }
