@@ -204,7 +204,7 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
 **【时空定位】**
 结合节气候应，以及起卦时间，分析卦象时间指示。
 
-要求：引用卦爻辞原文，突出五行生克，言简意赅，总字数控制在2000字内。
+要求：引用卦爻辞原文，突出五行生克，言简意赅，总字数控制在1800字内。
 """)
     
     prompt = "\n".join(prompt_parts)
