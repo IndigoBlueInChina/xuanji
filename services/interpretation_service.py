@@ -202,7 +202,7 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
    - 平衡之道：综卦是否提醒了本卦可能忽略的隐患或过度倾向？
 
 **【时空定位】**
-结合节气候应，分析卦象时间指示。
+结合节气候应，以及起卦时间，分析卦象时间指示。
 
 要求：引用卦爻辞原文，突出五行生克，言简意赅，总字数控制在2000字内。
 """)
