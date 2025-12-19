@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# 环境变量文件（运行时通过环境变量或挂载提供）
+.env
+.env.local
+
+# 生成的报告文件
+解卦报告_*.html
+解卦报告_*.md
+
+# 文档
+README.md
+*.md
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# 其他
+.DS_Store
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+

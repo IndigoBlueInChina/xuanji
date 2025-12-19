@@ -1,0 +1,24 @@
+services:
+  xuanji:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: xuanji-app
+    ports:
+      - "8501:8501"
+    environment:
+      # 从 .env 文件或环境变量中读取
+      - LLM_SERVICE_API_KEY=${LLM_SERVICE_API_KEY}
+      - LLM_SERVICE_BASE_URL=${LLM_SERVICE_BASE_URL:-https://api.openai.com/v1}
+      - LLM_SERVICE_MODEL=${LLM_SERVICE_MODEL:-qwen-plus}
+    # 如果需要持久化生成的报告，可以挂载卷
+    # volumes:
+    #   - ./reports:/app/reports
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import streamlit; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
