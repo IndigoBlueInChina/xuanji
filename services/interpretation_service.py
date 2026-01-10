@@ -205,7 +205,7 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
 起卦时间：问卦信息中给出的日期，若没有明确日期，则为今天。
 结合节气候应，起卦时间，分析卦象时间指示。
 
-要求：引用卦爻辞原文，突出五行生克，言简意赅，总字数控制在1800字内。
+要求：引用卦爻辞原文，突出五行生克，言简意赅。
 """)
     
     prompt = "\n".join(prompt_parts)
@@ -221,7 +221,6 @@ def get_interpretation(question, background, external_signs, hexagram, changing_
             model=LLM_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
-            max_tokens=2000,
             stream=True  # 启用流式输出
         )
         
